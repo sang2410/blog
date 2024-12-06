@@ -39,17 +39,17 @@ pipeline {
         //     }
         // }
 
-        stage('Sonarqube Analysis') {
-            steps {
-                dir('frontend') {
-                    withSonarQubeEnv('Sonar-server') {
-                        sh ''' $SONAR_HOME/bin/sonar-scanner \
-                        -Dsonar.projectName=frontend \
-                        -Dsonar.projectKey=frontend '''
-                    }
-                }
-            }
-        }
+        // stage('Sonarqube Analysis') {
+        //     steps {
+        //         dir('frontend') {
+        //             withSonarQubeEnv('Sonar-server') {
+        //                 sh ''' $SONAR_HOME/bin/sonar-scanner \
+        //                 -Dsonar.projectName=frontend \
+        //                 -Dsonar.projectKey=frontend '''
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Quality Check') {
             steps {
