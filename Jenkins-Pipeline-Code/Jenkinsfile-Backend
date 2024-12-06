@@ -1,0 +1,80 @@
+pipeline {
+    agent any
+    tools {
+        nodejs 'nodejs'
+    }
+    environment {
+        SONAR_HOME = tool "sonar-scanner"
+    }
+
+    stages {
+        stage('Cleaning Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Git: Code Checkout') {
+            steps {
+                script {
+                    git branch: 'main', url: 'https://github.com/sang2410/blog.git'
+                }
+            }
+        }
+
+        stage("Trivy: Filesystem scan") {
+            steps {
+                dir('backend') {
+                    sh 'trivy fs . > trivy-backend.txt'
+                }
+            }
+        }
+
+        // stage("OWASP: Dependency check") {
+        //     steps {
+        //         dir('backend') {
+        //             dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+        //             dependencyCheckPublisher pattern: '**/dependency-check-report-backend.xml'
+        //         }
+        //     }
+        // }
+
+        stage('Sonarqube Analysis') {
+            steps {
+                dir('backend') {
+                    withSonarQubeEnv('Sonar-server') {
+                        sh ''' $SONAR_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=backend \
+                        -Dsonar.projectKey=backend '''
+                    }
+                }
+            }
+        }
+
+        stage('Quality Check') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-cred'
+                }
+            }
+        }
+
+        stage("Docker Image Build") {
+            steps {
+                script {
+                    dir('frontend') {
+                        sh 'docker system prune -f'
+                        sh 'docker container prune -f'
+                        // sh 'docker build -t ${AWS_ECR_REPO_NAME} .'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: '**/dependency-check-report-*.xml', followSymlinks: false
+        }
+    }
+}
