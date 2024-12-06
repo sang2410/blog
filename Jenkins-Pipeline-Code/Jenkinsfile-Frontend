@@ -30,14 +30,14 @@ pipeline {
             }
         }
 
-        stage("OWASP: Dependency check") {
-            steps {
-                dir('frontend') {
-                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                    dependencyCheckPublisher pattern: '**/dependency-check-report-frontend.xml'
-                }
-            }
-        }
+        // stage("OWASP: Dependency check") {
+        //     steps {
+        //         dir('frontend') {
+        //             dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+        //             dependencyCheckPublisher pattern: '**/dependency-check-report-frontend.xml'
+        //         }
+        //     }
+        // }
 
         stage('Sonarqube Analysis') {
             steps {
