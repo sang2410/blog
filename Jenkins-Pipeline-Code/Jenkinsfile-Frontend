@@ -16,7 +16,7 @@ pipeline {
         }
 
     }
-    stage('Git: Code Checkout') {
+    stage('Git: Code Checkout'){
             steps {
                 script{
                     git branch: 'main', url: 'https://github.com/sang2410/blog.git'
