@@ -51,13 +51,13 @@ pipeline {
         //     }
         // }
 
-        stage('Quality Check') {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-cred'
-                }
-            }
-        }
+        // stage('Quality Check') {
+        //     steps {
+        //         script {
+        //             waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-cred'
+        //         }
+        //     }
+        // }
 
         stage("Docker Image Build") {
             steps {
@@ -65,12 +65,27 @@ pipeline {
                     dir('frontend') {
                         sh 'docker system prune -f'
                         sh 'docker container prune -f'
-                        // sh 'docker build -t ${AWS_ECR_REPO_NAME} .'
+                        sh 'docker build -t frontend .'
                     }
                 }
             }
         }
+         stage("ECR Image Pushing") {
+            steps {
+                withAWS(credentials: 'aws-creds') {
+                    script {
+                        sh 'aws ecr get-login-password --region  us-east-1  | docker login --username AWS --password-stdin 820242930688.dkr.ecr.us-east-1.amazonaws.com'
+                        sh 'docker tag frontend:latest 820242930688.dkr.ecr.us-east-1.amazonaws.com/frontend:latest'
+                        sh 'docker push 820242930688.dkr.ecr.us-east-1.amazonaws.com/frontend:latest'
+                }
+                }
+                
+            }
+        }
+
     }
+
+    
 
     post {
         always {
