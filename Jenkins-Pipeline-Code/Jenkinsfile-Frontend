@@ -85,11 +85,9 @@ pipeline {
 
     }
 
-    
-
-    post {
-        always {
-            archiveArtifacts artifacts: '**/dependency-check-report-*.xml', followSymlinks: false
-        }
-    }
+    // post {
+    //     always {
+    //         archiveArtifacts artifacts: '**/dependency-check-report-*.xml', followSymlinks: false
+    //     }
+    // }
 }
